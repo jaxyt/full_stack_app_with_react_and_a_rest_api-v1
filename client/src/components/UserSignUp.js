@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+
 import Form from './Form';
 
 export default class UserSignUp extends Component {
     state = {
-        name: '',
+        firstName: '',
+        lastName: '',
         username: '',
         password: '',
         errors: [],
@@ -12,7 +14,8 @@ export default class UserSignUp extends Component {
 
     render() {
         const {
-            name,
+            firstName,
+            lastName,
             username,
             password,
             errors,
@@ -30,19 +33,26 @@ export default class UserSignUp extends Component {
                         elements={() => (
                             <React.Fragment>
                                 <input
-                                    id="name"
-                                    name="name"
+                                    id="firstName"
+                                    name="firstName"
                                     type="text"
-                                    value={name}
+                                    value={firstName}
                                     onChange={this.change}
-                                    placeholder="Name" />
+                                    placeholder="First Name" />
+                                <input
+                                    id="lastName"
+                                    name="lastName"
+                                    type="text"
+                                    value={lastName}
+                                    onChange={this.change}
+                                    placeholder="Last Name" />
                                 <input
                                     id="username"
                                     name="username"
                                     type="text"
                                     value={username}
                                     onChange={this.change}
-                                    placeholder="User Name" />
+                                    placeholder="Email Address" />
                                 <input
                                     id="password"
                                     name="password"
@@ -72,7 +82,39 @@ export default class UserSignUp extends Component {
     }
 
     submit = () => {
+        const { context } = this.props;
 
+        const {
+            firstName,
+            lastName,
+            username,
+            password,
+        } = this.state;
+
+        // New user payload
+        const user = {
+            firstName,
+            lastName,
+            emailAddress: this.state.username,
+            password,
+        };
+
+        context.data.createUser(user)
+            .then( errors => {
+                if (errors.length) {
+                    this.setState({ errors });
+                } else {
+                    console.log(`${username} is successfully signed up and authenticated`)
+                    context.actions.signIn(username, password)
+                        .then(() => {
+                            this.props.history.push('/authenticated');
+                        });
+                }
+            })
+            .catch( err => {
+                console.log(err);
+                this.props.history.push('/error');
+            })
     }
 
     cancel = () => {

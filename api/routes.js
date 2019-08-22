@@ -43,7 +43,7 @@ const authenticate = async (req, res, next) => {
             next()
         }
     } catch (error) {
-        next(err)
+        next(error)
     }
 }
 
@@ -132,7 +132,7 @@ router.post('/users', [
 /**
  * returns all courses in json format after authenticating the user
  */
-router.get('/courses', authenticate, async (req, res, next) => {
+router.get('/courses', async (req, res, next) => {
     try {
         const courses = await Course.findAll({attributes: ['id','title','description','estimatedTime','materialsNeeded'], include: [{ model: User, attributes: ['id', 'firstName', 'lastName', 'emailAddress'] }]});
         res.json(courses);  

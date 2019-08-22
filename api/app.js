@@ -1,6 +1,7 @@
 'use strict';
 
 // load modules
+const cors = require('cors');
 const express = require('express');
 const morgan = require('morgan');
 const { sequelize, models } = require('./db');
@@ -23,6 +24,9 @@ const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'tr
 // create the Express app
 const app = express();
 
+// Enable all CORS requests
+app.use(cors());
+
 // Setup request body JSON parsing.
 app.use(express.json());
 
@@ -34,7 +38,7 @@ app.use(morgan('dev'));
 // setup a friendly greeting for the root route
 app.get('/', (req, res) => {
   res.json({
-    message: 'Welcome to the REST API project!',
+    message: 'Welcome to the REST API!',
   });
 });
 
