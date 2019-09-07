@@ -145,7 +145,7 @@ router.get('/courses', async (req, res, next) => {
 /**
  * returns a specific course after authentication is successful
  */
-router.get('/courses/:id', authenticate, async (req, res, next) => {
+router.get('/courses/:id', async (req, res, next) => {
     try {
         let message;
         const course = await Course.findOne({where: { id: req.params.id }, attributes: ['id','title','description','estimatedTime','materialsNeeded'], include: [{ model: User, attributes: ['id', 'firstName', 'lastName', 'emailAddress'] }]});
