@@ -89,7 +89,8 @@ export default class Data {
             return [];
         } else if (response.status === 403) {
             return response.json().then(data => {
-                return data.error;
+                const errorMap = [data.error];
+                return errorMap;
             });
         } else {
             throw new Error();

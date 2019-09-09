@@ -15,6 +15,10 @@ export default class CourseDetail extends Component {
             courseDetail,
         } = this.state;
 
+        const {
+            authenticatedUser,
+        } = this.props.context;
+
         return (
             <div>
                 {courseDetail.map(course => (
@@ -23,9 +27,18 @@ export default class CourseDetail extends Component {
                             <div className="bounds">
                                 <div className="grid-100">
                                     <span>
-                                        <Link className="button" to={`/courses/update/${course.id}`}>Update Course</Link>
-                                        <Link className="button" to={`/courses/delete/${course.id}`}>Delete Course</Link>
-                                        <Link className="button button-secondary" to="/">Return to List</Link>
+                                        {authenticatedUser.id === course.User.id ?
+                                            <React.Fragment>
+                                                <Link className="button" to={`/courses/${course.id}/update`}>Update Course</Link>
+                                                <Link className="button" to={`/courses/${course.id}/delete`}>Delete Course</Link>
+                                                <Link className="button button-secondary" to="/">Return to List</Link>
+                                            </React.Fragment>
+                                        :
+                                            <React.Fragment>
+                                                <Link className="button button-secondary" to="/">Return to List</Link>
+                                            </React.Fragment>
+                                        }
+                                        
                                     </span>
                                 </div>
                             </div>

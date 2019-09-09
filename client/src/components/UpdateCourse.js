@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Redirect } from 'react-router-dom';
 
 import Form from './Form';
 
@@ -8,13 +9,15 @@ export default class UpdateCourse extends Component {
         description: '',
         estimatedTime: '',
         materialsNeeded: '',
+        unauthorized: [],
         courseDetail: [],
         errors: [],
     }
 
-    componentDidMount() {
+    componentWillMount() {
         this.display();
     }
+
 
     render() {
         const { firstName, lastName } = this.props.context.authenticatedUser;
@@ -23,9 +26,9 @@ export default class UpdateCourse extends Component {
             description,
             estimatedTime,
             materialsNeeded,
+            unauthorized,
             errors,
         } = this.state;
-
         
 
         return (
@@ -39,52 +42,59 @@ export default class UpdateCourse extends Component {
                         submitButtonText="Update Course"
                         elements={() => (
                             <div>
-                                <div className="grid-66">
-                                    <div className="course--header">
-                                        <h4 className="course--label">Course</h4>
-                                        <div>
-                                            <input
-                                                id="title"
-                                                className="input-title course--title--input"
-                                                name="title"
-                                                type="text"
-                                                value={title}
-                                                onChange={this.change}
-                                                placeholder="Course Title..." />
-                                        </div>
-                                        <p>{`By ${firstName} ${lastName}`}</p>
-                                    </div>
-                                    <div className="course--description">
-                                        <div>
-                                            <textarea id="description" name="description" value={description} onChange={this.change} placeholder="Course Description..." ></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="grid-25 grid-right">
-                                    <div className="course--stats">
-                                        <ul className="course--stats--list">
-                                            <li className="course--stats--list--item">
-                                                <h4>Estimated Time</h4>
+                                {unauthorized.length ?
+                                    <Redirect to="/forbidden" />
+                                :
+                                    <div>
+                                        <div className="grid-66">
+                                            <div className="course--header">
+                                                <h4 className="course--label">Course</h4>
                                                 <div>
                                                     <input
-                                                        id="estimatedTime"
-                                                        className="course--time--input"
-                                                        name="estimatedTime"
+                                                        id="title"
+                                                        className="input-title course--title--input"
+                                                        name="title"
                                                         type="text"
-                                                        value={estimatedTime}
+                                                        value={title}
                                                         onChange={this.change}
-                                                        placeholder="Hours" />
+                                                        placeholder="Course Title..." />
                                                 </div>
-                                            </li>
-                                            <li className="course--stats--list--item">
-                                                <h4>Materials Needed</h4>
+                                                <p>{`By ${firstName} ${lastName}`}</p>
+                                            </div>
+                                            <div className="course--description">
                                                 <div>
-                                                    <textarea id="materialsNeeded" name="materialsNeeded" value={materialsNeeded} onChange={this.change} placeholder="List Materials..."></textarea>
+                                                    <textarea id="description" name="description" value={description} onChange={this.change} placeholder="Course Description..." ></textarea>
                                                 </div>
-                                            </li>
-                                        </ul>
+                                            </div>
+                                        </div>
+                                        <div className="grid-25 grid-right">
+                                            <div className="course--stats">
+                                                <ul className="course--stats--list">
+                                                    <li className="course--stats--list--item">
+                                                        <h4>Estimated Time</h4>
+                                                        <div>
+                                                            <input
+                                                                id="estimatedTime"
+                                                                className="course--time--input"
+                                                                name="estimatedTime"
+                                                                type="text"
+                                                                value={estimatedTime}
+                                                                onChange={this.change}
+                                                                placeholder="Hours" />
+                                                        </div>
+                                                    </li>
+                                                    <li className="course--stats--list--item">
+                                                        <h4>Materials Needed</h4>
+                                                        <div>
+                                                            <textarea id="materialsNeeded" name="materialsNeeded" value={materialsNeeded} onChange={this.change} placeholder="List Materials..."></textarea>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div> 
+                                    
+                                }
                             </div>
                             
                         )} /> 
@@ -98,16 +108,26 @@ export default class UpdateCourse extends Component {
         const { context, match } = this.props;
         context.data.getCourse(match.params.id)
             .then(currentCourse => {
-                const course = [{ ...currentCourse }];
-                this.setState(() => {
-                    return {
-                        courseDetail: course,
-                        title: course[0].title,
-                        description: course[0].description,
-                        estimatedTime: course[0].estimatedTime,
-                        materialsNeeded: course[0].materialsNeeded,
-                    };
-                });
+                if (currentCourse.User.id === context.authenticatedUser.id) {
+                    const course = [{ ...currentCourse }];
+                    this.setState(() => {
+                        return {
+                            courseDetail: course,
+                            title: course[0].title,
+                            description: course[0].description,
+                            estimatedTime: course[0].estimatedTime,
+                            materialsNeeded: course[0].materialsNeeded,
+                            userId: course[0].User.id,
+                        };
+                    });
+                } else {
+                    this.setState(() => {
+                        return {
+                            unauthorized: ["The post you are attempting to modify is owned by a different user"],
+                        };
+                    });
+                }
+                
             })
         return;
     }
