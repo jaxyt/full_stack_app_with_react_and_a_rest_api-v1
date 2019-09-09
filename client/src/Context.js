@@ -26,6 +26,7 @@ export class Provider extends Component {
                 signIn: this.signIn,
                 signOut: this.signOut,
                 allCourses: this.allCourses,
+                removeCourse: this.removeCourse,
             },
         };
 
@@ -62,6 +63,12 @@ export class Provider extends Component {
     allCourses = async () => {
         const courses = await this.data.getCourses();
         return courses;
+    }
+
+    removeCourse = async (courseId) => {
+        const { authenticatedUser } = this.state;
+        const deleted = await this.data.deleteCourse(courseId, authenticatedUser.emailAddress, authenticatedUser.password);
+        return deleted;
     }
 }
 

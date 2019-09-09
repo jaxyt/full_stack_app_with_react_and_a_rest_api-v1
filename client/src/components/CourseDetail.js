@@ -18,13 +18,13 @@ export default class CourseDetail extends Component {
         return (
             <div>
                 {courseDetail.map(course => (
-                    <div key={course.id}>
+                    <div key={course.User.id}>
                         <div className="actions--bar">
                             <div className="bounds">
                                 <div className="grid-100">
                                     <span>
                                         <Link className="button" to={`/courses/update/${course.id}`}>Update Course</Link>
-                                        <Link className="button" to="/">Delete Course</Link>
+                                        <Link className="button" to={`/courses/delete/${course.id}`}>Delete Course</Link>
                                         <Link className="button button-secondary" to="/">Return to List</Link>
                                     </span>
                                 </div>
@@ -62,7 +62,6 @@ export default class CourseDetail extends Component {
 
     display = () => {
         const { context, match } = this.props;
-        console.log(match.params.id);
         context.data.getCourse(match.params.id)
             .then(currentCourse => {
                 const course = [{ ...currentCourse }];
