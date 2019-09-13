@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 
 export default () => (
   <div className="bounds">
-    <h1>Not Found</h1>
-    <p>Sorry! We couldn't find the page you're looking for.</p>
+    <h1>Forbidden</h1>
+    <p>You are not authorized to make changes to this course.</p>
     <Link className="button" to="/">Return Home</Link>
   </div>
 );

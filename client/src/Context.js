@@ -1,75 +1,67 @@
 import React, { Component } from 'react';
-import Data from './Data';
 import Cookies from 'js-cookie';
+import Data from './Data';
 
-
-const Context = React.createContext();
+const Context = React.createContext(); 
 
 export class Provider extends Component {
 
-    state = {
-        authenticatedUser: Cookies.getJSON('authenticatedUser') || null,
+  state = {
+    authenticatedUser: Cookies.getJSON('authenticatedUser') || null
+  };
+
+  constructor() {
+    super();
+    this.data = new Data();
+  }
+
+  render() {
+    const { authenticatedUser } = this.state;
+    const value = {
+      authenticatedUser,
+      data: this.data,
+      actions: {
+        signIn: this.signIn,
+        signOut: this.signOut,
+        removeCourse: this.removeCourse,
+      },
     };
+    return (
+      <Context.Provider value={value}>
+        {this.props.children}
+      </Context.Provider>  
+    );
+  }
 
-    constructor() {
-        super();
-        this.data = new Data();
-    }
-
-    render() {
-        const { authenticatedUser } = this.state;
-
-        const value = {
-            authenticatedUser,
-            data: this.data,
-            actions: {
-                signIn: this.signIn,
-                signOut: this.signOut,
-                allCourses: this.allCourses,
-                removeCourse: this.removeCourse,
-            },
+  
+  signIn = async (emailAddress, password) => {
+    const user = await this.data.getUser(emailAddress, password);
+    if (user !== null) {
+      const currentUser = { ...user, password };
+      this.setState(() => {
+        return {
+          authenticatedUser: currentUser,
         };
-
-        return (
-            <Context.Provider value={value}>
-                {this.props.children}
-            </Context.Provider>
-        );
+      });
+      Cookies.set('authenticatedUser', JSON.stringify(currentUser), { expires: 1 });
     }
+    return user;
+  }
 
-    signIn = async (username, password) => {
-        const user = await this.data.getUser(username, password);
-        const userCreds = { ...user, password };
-        if (user !== null) {
-            this.setState(() => {
-                return {
-                    authenticatedUser: userCreds,
-                };
-            });
-            Cookies.set('authenticatedUser', JSON.stringify(userCreds), { expires: 1 });
-        }
-        return user
-    }
+  signOut = () => {
+    this.setState({ authenticatedUser: null });
+    Cookies.remove('authenticatedUser');
+  }
 
-    signOut = () => {
-        this.setState(() => {
-            return {
-                authenticatedUser: null
-            };
-        });
-        Cookies.remove('authenticatedUser');
+  removeCourse = async (courseId) => {
+    const { authenticatedUser } = this.state;
+    const error = await this.data.deleteCourse(courseId, authenticatedUser.emailAddress, authenticatedUser.password);
+    if (error.length) {
+      return false;
+    } else {
+      return true;
     }
-
-    allCourses = async () => {
-        const courses = await this.data.getCourses();
-        return courses;
-    }
-
-    removeCourse = async (courseId) => {
-        const { authenticatedUser } = this.state;
-        const deleted = await this.data.deleteCourse(courseId, authenticatedUser.emailAddress, authenticatedUser.password);
-        return deleted;
-    }
+  }
 }
 
 export const Consumer = Context.Consumer;
@@ -81,11 +73,12 @@ export const Consumer = Context.Consumer;
  */
 
 export default function withContext(Component) {
-    return function ContextComponent(props) {
-        return (
-            <Context.Consumer>
-                {context => <Component {...props} context={context} />}
-            </Context.Consumer>
-        );
-    }
+  return function ContextComponent(props) {
+    return (
+      <Context.Consumer>
+        {context => <Component {...props} context={context} />}
+      </Context.Consumer>
+    );
+  }
 }
+
